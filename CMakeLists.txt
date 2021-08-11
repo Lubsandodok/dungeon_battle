@@ -14,6 +14,7 @@ SET(SOURCES
     src/level.c
     src/renderer.c
     src/world.c
+    src/util.c
 )
 
 add_subdirectory(
