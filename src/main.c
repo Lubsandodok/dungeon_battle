@@ -59,7 +59,7 @@ int main()
 
         // Input
         CommandInput input = HandleInput();
-        if (input.key.sym == SDLK_ESCAPE)
+        if (input.type == COMMAND_INPUT_TYPE_CLOSE_GAME)
         {
             quit = true;
         }

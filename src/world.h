@@ -68,19 +68,25 @@ typedef struct WorldData
 
 
 // Meta
+typedef struct WorldPositionsData
+{
+    WorldEntity* entites[3];
+    size_t index;
+} WorldPositionsData;
+
 typedef struct WorldPositions
 {
     Point position;
-    WorldEntity* entity;
+    WorldPositionsData data;
     UT_hash_handle hh;
 } WorldPositions;
 
-typedef struct WorldGroups
+typedef struct WorldGroup
 {
-    SDL_Keysym key;
+    SDL_Keycode key;
     WorldEntity* entity;
     UT_hash_handle hh;
-} WorldGroups;
+} WorldGroup;
 
 typedef struct WorldCursor
 {
@@ -94,12 +100,19 @@ typedef struct World
     WorldData data;
 
     WorldPositions positions;
-    WorldGroups groups;
+    WorldGroup* groups;
     WorldCursor cursor;
+    WorldEntity* unbinded_entity;
 } World;
 
 // TODO Level info
 int WorldInit(World* world);
 void WorldQuit(World* world);
+
+const WorldEntity* WorldFindEntityByKey(World* world, SDL_Keycode key);
+WorldEntity* WorldGetUnbindedEntity(World* world);
+
+int WorldBindKeyToEntity(World* world, WorldEntity* entity, SDL_Keycode sdl_key);
+int WorldSetCursor(World* world, WorldEntity* entity);
 
 #endif /* WORLD_H */
