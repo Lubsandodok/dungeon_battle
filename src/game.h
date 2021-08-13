@@ -3,11 +3,13 @@
 
 #include "world.h"
 #include "renderer.h"
+#include "level.h"
 
 #include <SDL.h>
 
 typedef enum
 {
+    COMMAND_INPUT_TYPE_NONE,
     COMMAND_INPUT_TYPE_BIND_ENTITY,
     COMMAND_INPUT_TYPE_SELECT_ENTITY,
     COMMAND_INPUT_TYPE_MOVE_ENTITY,
@@ -57,6 +59,7 @@ typedef struct Commands
 
 CommandInput HandleInput();
 int HandleGameWorld(World* world, const CommandInput input);
+
 void ExportWorldToRendererInfo(World* world, RendererInfo* info);
 
 #endif /* GAME_H */

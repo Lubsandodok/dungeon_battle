@@ -1,6 +1,10 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <stdbool.h>
+
+#include <SDL.h>
+
 typedef enum
 {
     DIRECTION_UP,
@@ -20,5 +24,7 @@ typedef struct Point
     uint32_t x;
     uint32_t y;
 } Point;
+
+bool IsKeyNumberOrLetter(SDL_Keycode key);
 
 #endif /* UTIL_H */

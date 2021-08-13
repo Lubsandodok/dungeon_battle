@@ -14,7 +14,7 @@ static const char level[][40] = {
 "= ================== ================= =",
 "= ================== ================= =",
 "= ================== ================= =",
-"=                  U ================= =",
+"=                    ================= =",
 "= ================== ================= =",
 "= ================== ================= =",
 "= ================== ================= =",
@@ -74,6 +74,33 @@ void ExportLevelToRendererInfo(RendererInfo* info)
                 case 'U':
                     entity->type = RENDERER_ENTITY_TYPE_UNIT;
                     entity->data.unit = (RendererEntityUnit) {.direction = DIRECTION_UP};
+                    break;
+            }
+        }
+    }
+}
+
+void ExportLevelToWorld(World* world)
+{
+    for (size_t i = 0; i < width; ++i)
+    {
+        for (size_t j = 0; j < height; ++j)
+        {
+            Point position = {.x = i; .y = j};
+            switch (level[i][j])
+            {
+                case '=':
+                    WorldCreateWall(world, position);
+                    break;
+
+                case 'M':
+                    WorldCreateMine(world, position, false);
+                    break;
+
+                case 'B':
+                    WorldCreateMine(world, position, true);
+                    // TODO use functions
+                    
                     break;
             }
         }

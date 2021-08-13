@@ -7,6 +7,8 @@
 
 #include "util.h"
 
+#define ENTITY_MAX_COUNT 50 * 50
+
 // Data
 typedef enum
 {
@@ -59,6 +61,7 @@ typedef struct WorldEntity
 typedef struct WorldData
 {
     WorldEntity* entities;
+    size_t index;
 
     uint32_t mines_count;
     uint32_t walls_count;
@@ -68,17 +71,17 @@ typedef struct WorldData
 
 
 // Meta
-typedef struct WorldPositionsData
+typedef struct WorldPosition
 {
     WorldEntity* entites[3];
     size_t index;
-} WorldPositionsData;
+} WorldPosition;
 
 typedef struct WorldPositions
 {
-    Point position;
-    WorldPositionsData data;
-    UT_hash_handle hh;
+    WorldPosition** data;
+    size_t x_length;
+    size_t y_length;
 } WorldPositions;
 
 typedef struct WorldGroup
@@ -111,8 +114,12 @@ void WorldQuit(World* world);
 
 const WorldEntity* WorldFindEntityByKey(World* world, SDL_Keycode key);
 WorldEntity* WorldGetUnbindedEntity(World* world);
+WorldCursor WorldGetCursor(World* world);
 
 int WorldBindKeyToEntity(World* world, WorldEntity* entity, SDL_Keycode sdl_key);
 int WorldSetCursor(World* world, WorldEntity* entity);
+int WorldCreateWall(World* world, Point position);
+int WorldCreateMine(World* world, Point position, bool is_base);
+int WorldCreateUnit(World* world, Point position);
 
 #endif /* WORLD_H */

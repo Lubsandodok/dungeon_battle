@@ -1,8 +1,10 @@
 #include "game.h"
+#include "util.h"
 
 int CheckCommands(World* world, Commands* commands, CommandInput input);
 int ApplyCommands(World* world, Commands* commands);
 
+void CheckAction(World* world, Commands* commands);
 void CheckBindEntity(World* world, Commands* commands, SDL_Keycode key);
 void CheckSelectEntity(World* world, Commands* commands, SDL_Keycode key);
 
@@ -13,32 +15,33 @@ CommandInput HandleInput()
     SDL_Event event;
     if (SDL_PollEvent(&event))
     {
-        input.key = event.key.keysym.sym;
-        if (event.key.keysym.mod == KMOD_SHIFT)
+        SDL_Keycode sym = event.key.keysym.sym;
+        SDL_Keymod mod = event.key.keysym.mod;
+        input.key = sym;
+        if (mod & KMOD_SHIFT)
         {
-            input.type = COMMAND_INPUT_TYPE_BIND_ENTITY;
+            if (IsKeyNumberOrLetter(sym))
+            {
+                input.type = COMMAND_INPUT_TYPE_BIND_ENTITY;
+            }
         }
         else
         {
-            switch (event.key.keysym.sym)
+            if (sym == SDLK_SPACE)
             {
-                case SDLK_SPACE:
-                    input.type = COMMAND_INPUT_TYPE_ACTION;
-                    break;
-
-                case SDLK_UP:
-                case SDLK_DOWN:
-                case SDLK_LEFT:
-                case SDLK_RIGHT:
-                    input.type = COMMAND_INPUT_TYPE_MOVE_ENTITY;
-                    break;
-
-                case SDLK_ESCAPE:
-                    input.type = COMMAND_INPUT_TYPE_CLOSE_GAME;
-                    break;
-
-                default:
-                    input.type = COMMAND_INPUT_TYPE_SELECT_ENTITY;
+                input.type = COMMAND_INPUT_TYPE_ACTION;
+            }
+            else if (sym == SDLK_UP || sym == SDLK_DOWN || sym == SDLK_LEFT || sym == SDLK_RIGHT)
+            {
+                input.type = COMMAND_INPUT_TYPE_MOVE_ENTITY;
+            }
+            else if (sym == SDLK_ESCAPE)
+            {
+                input.type = COMMAND_INPUT_TYPE_CLOSE_GAME;
+            }
+            else if (IsKeyNumberOrLetter(sym))
+            {
+                input.type = COMMAND_INPUT_TYPE_SELECT_ENTITY;
             }
         }
     }
@@ -48,19 +51,26 @@ CommandInput HandleInput()
 
 int HandleGameWorld(World* world, const CommandInput input)
 {
+    // TODO
+    if (input.type == COMMAND_INPUT_TYPE_NONE)
+    {
+        return 0;
+    }
+
     Commands commands;
     commands.index = 0;
 
     CheckCommands(world, &commands, input);
+    SDL_Log("Game::HandleGameWorld-AfterCheck: %d %d", input.key, commands.index);
 
     ApplyCommands(world, &commands);
+    SDL_Log("Game::HandleGameWorld-AfterApply: %d %d", input.key, commands.index);
 
     return 0;
 }
 
 void ExportWorldToRendererInfo(World* world, RendererInfo* info)
 {
-
 }
 
 int CheckCommands(World* world, Commands* commands, CommandInput input)
@@ -73,6 +83,10 @@ int CheckCommands(World* world, Commands* commands, CommandInput input)
 
         case COMMAND_INPUT_TYPE_SELECT_ENTITY:
             CheckSelectEntity(world, commands, input.key);
+            break;
+
+        case COMMAND_INPUT_TYPE_ACTION:
+            CheckAction(world, commands);
             break;
     }
 
@@ -134,5 +148,23 @@ void CheckSelectEntity(World* world, Commands* commands, SDL_Keycode key)
         ++commands->index;
     }
     SDL_Log("Game::CheckSelectEntity: end");
+}
+
+void CheckAction(World* world, Commands* commands)
+{
+    WorldCursor cursor = WorldGetCursor(world);
+
+    // TODO
+    if (cursor.entity == NULL)
+    {
+        return 0;
+    }
+
+    switch (cursor.entity->type)
+    {
+        case MINE:
+            WorldCreateUnit(world, cursor.position);
+            break;
+    }
 }
 
