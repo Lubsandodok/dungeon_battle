@@ -20,13 +20,13 @@ int WorldInit(World* world)
     // TODO 40 and 40
     world->positions.x_length = 40;
     world->positions.y_length = 40;
-    world->positions = (WorldPosition**) malloc(positions.y_length * sizeof(WorldPosition*));
+    world->positions.data = (WorldPosition**) malloc(world->positions.y_length * sizeof(WorldPosition*));
     for (size_t j = 0; j < 40; ++j)
     {
-        world->positions[j] = (WorldPosition*) malloc(positions.x_length * sizeof(WorldPosition));
+        world->positions.data[j] = (WorldPosition*) malloc(world->positions.x_length * sizeof(WorldPosition));
         for (size_t i = 0; i < 40; ++i)
         {
-            world->positions[j][i].index = 0;
+            world->positions.data[j][i].index = 0;
         }
     }
 
@@ -40,11 +40,11 @@ void WorldQuit(World* world)
     free(world->data.entities);
 
     // free positions
-    for (size_t j = 0; j < positions.y_length; ++j)
+    for (size_t j = 0; j < world->positions.y_length; ++j)
     {
-        free(world->positions[j]);
+        free(world->positions.data[j]);
     }
-    free(world->positions);
+    free(world->positions.data);
 
     // free groups
     WorldGroup* group;
@@ -104,13 +104,13 @@ int WorldSetCursor(World* world, WorldEntity* entity)
 
 int WorldCreateWall(World* world, Point position)
 {
-    world->data.entites[world->data.index] = (WorldEntity) {
+    world->data.entities[world->data.index] = (WorldEntity) {
         .type = WALL,
         .common = (Common) {
             .position = position
         }
     };
-    AddToPositions(world, &world->data.entites[world->data.index], position);
+    AddToPositions(world, &world->data.entities[world->data.index], position);
     ++world->data.index;
 
     return 0;
@@ -118,17 +118,18 @@ int WorldCreateWall(World* world, Point position)
 
 int WorldCreateMine(World* world, Point position)
 {
-    world->data.entites[world->data.index] = (WorldEntity) {
+    world->data.entities[world->data.index] = (WorldEntity) {
         .type = MINE,
         .common = (Common) {
             .position = position
         },
-        .data = (Mine) {
+        .data.mine = (Mine) {
             // TODO default letter
-            .is_base = is_base
+            .letter = ' ',
+            .is_base = false
         }
     };
-    AddToPositions(world, &world->data.entites[world->data.index], position);
+    AddToPositions(world, &world->data.entities[world->data.index], position);
     ++world->data.index;
 
     return 0;
@@ -142,20 +143,21 @@ int WorldUpgradeMineToBase(World* world, WorldEntity* entity)
 
 int WorldCreateUnit(World* world, Point position)
 {
-    world->data.entites[world->data.index] = (WorldEntity) {
+    world->data.entities[world->data.index] = (WorldEntity) {
         .type = UNIT,
         .common = (Common) {
             .position = position
         },
-        .data = (Unit) {
+        .data.unit = (Unit) {
             // TODO default letter
+            .letter = ' ',
             .direction = DIRECTION_UP
         }
-    }
-    AddToPositions(world, &world->data.entites[world->data.index], position);
+    };
+    AddToPositions(world, &world->data.entities[world->data.index], position);
     ++world->data.index;
 
-    world->unbinded_entity = &world->data.entites[world->data.index];
+    world->unbinded_entity = &world->data.entities[world->data.index];
     // TODO
     world->cursor.entity = NULL;
     

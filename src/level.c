@@ -86,7 +86,7 @@ void ExportLevelToWorld(World* world)
     {
         for (size_t j = 0; j < height; ++j)
         {
-            Point position = {.x = i; .y = j};
+            Point position = {.x = i, .y = j};
             switch (level[i][j])
             {
                 case '=':
@@ -94,12 +94,13 @@ void ExportLevelToWorld(World* world)
                     break;
 
                 case 'M':
-                    WorldCreateMine(world, position, false);
+                    WorldCreateMine(world, position);
                     break;
 
                 case 'B':
-                    WorldCreateMine(world, position, true);
+                    WorldCreateMine(world, position);
                     // TODO use functions
+                    // Upgrade Mine
                     
                     break;
             }

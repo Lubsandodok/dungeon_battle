@@ -119,7 +119,7 @@ WorldCursor WorldGetCursor(World* world);
 int WorldBindKeyToEntity(World* world, WorldEntity* entity, SDL_Keycode sdl_key);
 int WorldSetCursor(World* world, WorldEntity* entity);
 int WorldCreateWall(World* world, Point position);
-int WorldCreateMine(World* world, Point position, bool is_base);
+int WorldCreateMine(World* world, Point position);
 int WorldCreateUnit(World* world, Point position);
 
 #endif /* WORLD_H */

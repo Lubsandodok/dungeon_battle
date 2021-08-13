@@ -157,7 +157,7 @@ void CheckAction(World* world, Commands* commands)
     // TODO
     if (cursor.entity == NULL)
     {
-        return 0;
+        return;
     }
 
     switch (cursor.entity->type)
