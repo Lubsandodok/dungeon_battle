@@ -13,9 +13,9 @@
 typedef enum
 {
     MINE,
+    SHOT,
     WALL,
     UNIT,
-    SHOT,
 } WorldEntityType;
 
 typedef struct Common
@@ -73,7 +73,8 @@ typedef struct WorldData
 // Meta
 typedef struct WorldPosition
 {
-    WorldEntity* entites[3];
+    // HERE
+    WorldEntity* entities[3];
     size_t index;
 } WorldPosition;
 
@@ -115,11 +116,14 @@ void WorldQuit(World* world);
 const WorldEntity* WorldFindEntityByKey(World* world, SDL_Keycode key);
 WorldEntity* WorldGetUnbindedEntity(World* world);
 WorldCursor WorldGetCursor(World* world);
+WorldEntity* WorldGetEntityWithHighestPriority(World* world, Point position);
 
 int WorldBindKeyToEntity(World* world, WorldEntity* entity, SDL_Keycode sdl_key);
 int WorldSetCursor(World* world, WorldEntity* entity);
-int WorldCreateWall(World* world, Point position);
-int WorldCreateMine(World* world, Point position);
-int WorldCreateUnit(World* world, Point position);
+WorldEntity* WorldCreateWall(World* world, Point position);
+WorldEntity* WorldCreateMine(World* world, Point position);
+WorldEntity* WorldCreateUnit(World* world, Point position);
+int WorldUpgradeMineToBase(World* world, WorldEntity* entity);
+int WorldMoveEntity(World* world, WorldEntity* entity, Direction direction);
 
 #endif /* WORLD_H */

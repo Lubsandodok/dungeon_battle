@@ -4,9 +4,10 @@
 int CheckCommands(World* world, Commands* commands, CommandInput input);
 int ApplyCommands(World* world, Commands* commands);
 
-void CheckAction(World* world, Commands* commands);
 void CheckBindEntity(World* world, Commands* commands, SDL_Keycode key);
 void CheckSelectEntity(World* world, Commands* commands, SDL_Keycode key);
+void CheckMoveEntity(World* world, Commands* commands, SDL_Keycode key);
+void CheckAction(World* world, Commands* commands);
 
 CommandInput HandleInput()
 {
@@ -71,6 +72,42 @@ int HandleGameWorld(World* world, const CommandInput input)
 
 void ExportWorldToRendererInfo(World* world, RendererInfo* info)
 {
+    for (size_t i = 0; i < world->positions.x_length; ++i)
+    {
+        for (size_t j = 0; j < world->positions.y_length; ++j)
+        {
+            WorldEntity* we = WorldGetEntityWithHighestPriority(world, (Point) {.x = i, .y = j});
+            RendererEntity* re = &info->entites[i][j];
+
+//            SDL_Log("Game::ExportWorldToRendererInfo %d %d", i, j);
+
+            if (we == NULL)
+            {
+                re->type = RENDERER_ENTITY_TYPE_FLOOR;
+            }
+            else if (we->type == MINE && !we->data.mine.is_base)
+            {
+                re->type = RENDERER_ENTITY_TYPE_MINE;
+            }
+            else if (we->type == MINE && we->data.mine.is_base)
+            {
+                re->type = RENDERER_ENTITY_TYPE_BASE;
+            }
+            else if (we->type == SHOT)
+            {
+                // TODO
+            }
+            else if (we->type == WALL)
+            {
+                re->type = RENDERER_ENTITY_TYPE_WALL;
+            }
+            else if (we->type == UNIT)
+            {
+                re->type = RENDERER_ENTITY_TYPE_UNIT;
+                re->data.unit = (RendererEntityUnit) {.direction = DIRECTION_UP};
+            }
+        }
+    }
 }
 
 int CheckCommands(World* world, Commands* commands, CommandInput input)
@@ -83,6 +120,10 @@ int CheckCommands(World* world, Commands* commands, CommandInput input)
 
         case COMMAND_INPUT_TYPE_SELECT_ENTITY:
             CheckSelectEntity(world, commands, input.key);
+            break;
+
+        case COMMAND_INPUT_TYPE_MOVE_ENTITY:
+            CheckMoveEntity(world, commands, input.key);
             break;
 
         case COMMAND_INPUT_TYPE_ACTION:
@@ -107,6 +148,10 @@ int ApplyCommands(World* world, Commands* commands)
 
             case COMMAND_TYPE_SELECT_ENTITY:
                 WorldSetCursor(world, args->entity);
+                break;
+
+            case COMMAND_TYPE_MOVE_ENTITY:
+                WorldMoveEntity(world, args->entity, args->direction);
                 break;
         }
     }
@@ -148,6 +193,23 @@ void CheckSelectEntity(World* world, Commands* commands, SDL_Keycode key)
         ++commands->index;
     }
     SDL_Log("Game::CheckSelectEntity: end");
+}
+
+void CheckMoveEntity(World* world, Commands* commands, SDL_Keycode key)
+{
+    WorldEntity* entity = WorldFindEntityByKey(world, key);
+    if (entity != NULL)
+    {
+        // TODO check borders
+        Direction direction = GetDirectionByKey(key);
+        commands->array[commands->index] = (Command) {
+            .type = COMMAND_TYPE_MOVE_ENTITY,
+            .args = (CommandArgs) {.entity = entity, .direction = direction},
+        };
+        ++commands->index;
+    }
+
+    SDL_Log("Game::CheckMoveEntity: end");
 }
 
 void CheckAction(World* world, Commands* commands)

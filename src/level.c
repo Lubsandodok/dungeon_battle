@@ -98,11 +98,11 @@ void ExportLevelToWorld(World* world)
                     break;
 
                 case 'B':
-                    WorldCreateMine(world, position);
-                    // TODO use functions
-                    // Upgrade Mine
-                    
+                {
+                    WorldEntity* entity = WorldCreateMine(world, position);
+                    WorldUpgradeMineToBase(world, entity);
                     break;
+                }
             }
         }
     }

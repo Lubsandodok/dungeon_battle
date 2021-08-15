@@ -26,5 +26,6 @@ typedef struct Point
 } Point;
 
 bool IsKeyNumberOrLetter(SDL_Keycode key);
+Direction GetDirectionByKey(SDL_Keycode key);
 
 #endif /* UTIL_H */

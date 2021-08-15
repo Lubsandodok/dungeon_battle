@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 void AddToPositions(World* world, WorldEntity* entity, Point position);
+void RemoveFromPosition(World* world, WorldEntity* entity, Point position);
 
 int WorldInit(World* world)
 {
@@ -36,7 +37,7 @@ int WorldInit(World* world)
 
 void WorldQuit(World* world)
 {
-    // free entites
+    // free entities
     free(world->data.entities);
 
     // free positions
@@ -77,6 +78,24 @@ WorldCursor WorldGetCursor(World* world)
     return world->cursor;
 }
 
+WorldEntity* WorldGetEntityWithHighestPriority(World* world, Point position)
+{
+    WorldPosition* field_position = &world->positions.data[position.x][position.y];
+
+    WorldEntityType priority = MINE;
+    WorldEntity* entity = NULL;
+    for (size_t i = 0; i < field_position->index; ++i)
+    {
+        if (priority <= field_position->entities[i]->type)
+        {
+            priority = field_position->entities[i]->type;
+            entity = field_position->entities[i];
+        }
+    }
+
+    return entity;
+}
+
 
 int WorldBindKeyToEntity(World* world, WorldEntity* entity, SDL_Keycode sdl_key)
 {
@@ -102,7 +121,7 @@ int WorldSetCursor(World* world, WorldEntity* entity)
     return 0;
 }
 
-int WorldCreateWall(World* world, Point position)
+WorldEntity* WorldCreateWall(World* world, Point position)
 {
     world->data.entities[world->data.index] = (WorldEntity) {
         .type = WALL,
@@ -110,13 +129,15 @@ int WorldCreateWall(World* world, Point position)
             .position = position
         }
     };
-    AddToPositions(world, &world->data.entities[world->data.index], position);
+    WorldEntity* created = &world->data.entities[world->data.index];
     ++world->data.index;
 
-    return 0;
+    AddToPositions(world, created, position);
+
+    return created;
 }
 
-int WorldCreateMine(World* world, Point position)
+WorldEntity* WorldCreateMine(World* world, Point position)
 {
     world->data.entities[world->data.index] = (WorldEntity) {
         .type = MINE,
@@ -129,19 +150,15 @@ int WorldCreateMine(World* world, Point position)
             .is_base = false
         }
     };
-    AddToPositions(world, &world->data.entities[world->data.index], position);
+    WorldEntity* created = &world->data.entities[world->data.index];
     ++world->data.index;
 
-    return 0;
+    AddToPositions(world, created, position);
+
+    return created;
 }
 
-int WorldUpgradeMineToBase(World* world, WorldEntity* entity)
-{
-    // TODO check
-    
-}
-
-int WorldCreateUnit(World* world, Point position)
+WorldEntity* WorldCreateUnit(World* world, Point position)
 {
     world->data.entities[world->data.index] = (WorldEntity) {
         .type = UNIT,
@@ -154,20 +171,75 @@ int WorldCreateUnit(World* world, Point position)
             .direction = DIRECTION_UP
         }
     };
-    AddToPositions(world, &world->data.entities[world->data.index], position);
+    WorldEntity* created = &world->data.entities[world->data.index];
     ++world->data.index;
 
-    world->unbinded_entity = &world->data.entities[world->data.index];
+    AddToPositions(world, created, position);
+
+    world->unbinded_entity = created;
     // TODO
     world->cursor.entity = NULL;
     
+    return created;
+}
+
+int WorldUpgradeMineToBase(World* world, WorldEntity* entity)
+{
+    // TODO check
+    SDL_Log("Game::WorldUpgradeMineToBase");
+
+    entity->data.mine.is_base = true;
+
+    world->unbinded_entity = entity;
+    // TODO
+    world->cursor.entity = NULL;
+
     return 0;
+}
+
+int WorldMoveEntity(World* world, WorldEntity* entity, Direction direction)
+{
+    Point old = entity->common.position;
+    Point new = old;
+    switch (direction)
+    {
+        case DIRECTION_UP:
+            ++new.y;
+            break;
+
+        case DIRECTION_DOWN:
+            --new.y;
+            break;
+
+        case DIRECTION_LEFT:
+            --new.x;
+            break;
+
+        case DIRECTION_RIGHT:
+            ++new.x;
+            break;
+    }
+    entity->common.position = new;
+
+
 }
 
 void AddToPositions(World* world, WorldEntity* entity, Point position)
 {
     WorldPosition* field_position = &world->positions.data[position.x][position.y];
-    field_position->entites[field_position->index] = entity;
+    field_position->entities[field_position->index] = entity;
     ++field_position->index;
+}
+
+void RemoveFromPosition(World* world, WorldEntity* entity, Point position)
+{
+    WorldPosition* field_position = &world->positions.data[position.x][position.y];
+    for (size_t i = 0; i < field_position->index; ++i)
+    {
+        if (entity == field_position->entities[i])
+        {
+
+        }
+    }
 }
 

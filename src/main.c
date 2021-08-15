@@ -44,7 +44,9 @@ int main()
     }
 
     // Create level
-    ExportLevelToRendererInfo(&info);
+    //ExportLevelToRendererInfo(&info);
+    ExportLevelToWorld(&world);
+    SDL_Log("main::ExportLevelToWorld");
 
     // Create game logic
     uint32_t previous = SDL_GetTicks();
@@ -70,6 +72,7 @@ int main()
             HandleGameWorld(&world, input);
 
             ExportWorldToRendererInfo(&world, &info);
+//            SDL_Log("main::ExportWorldToRendererInfo");
 
             Render(&context, &info);
 
@@ -77,7 +80,7 @@ int main()
         }
 
         // TODO
-        SDL_Delay(10);
+        SDL_Delay(50);
     }
 
     RendererInfoQuit(&info);

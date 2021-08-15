@@ -43,6 +43,7 @@ typedef struct CommandArgs
 {
     WorldEntity* entity;
     SDL_Keycode key;
+    Direction direction;
 } CommandArgs;
 
 typedef struct Command
